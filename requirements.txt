@@ -5,4 +5,4 @@ scikit-learn
 PyMuPDF
 pytesseract
 gunicorn
-git+https://github.com/openemr/openemr-clinical-intelligence-service.git
+clinical-ddi-check==0.1.0
