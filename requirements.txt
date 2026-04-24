@@ -1,8 +1,11 @@
 Flask
+requests
 pandas
 numpy
 scikit-learn
-PyMuPDF
 pytesseract
+Pillow
+pdfplumber
+PyMuPDF
 gunicorn
 clinical-ddi-check==0.1.0
