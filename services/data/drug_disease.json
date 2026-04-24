@@ -1,0 +1,28 @@
+{
+  "metformin": {
+    "kidney disease": {
+      "severity": "major",
+      "description": "Risk of lactic acidosis",
+      "recommendation": "Avoid in severe renal impairment"
+    }
+  },
+  "ibuprofen": {
+    "gastric ulcer": {
+      "severity": "major",
+      "description": "Can worsen ulcer and cause bleeding",
+      "recommendation": "Avoid or use with protection"
+    },
+    "kidney disease": {
+      "severity": "moderate",
+      "description": "May worsen kidney function",
+      "recommendation": "Monitor renal function"
+    }
+  },
+  "atorvastatin": {
+    "liver disease": {
+      "severity": "major",
+      "description": "May worsen liver condition",
+      "recommendation": "Monitor liver enzymes"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "doxycycline": {
+    "severity": "moderate",
+    "description": "Milk reduces absorption of doxycycline",
+    "recommendation": "Avoid dairy products 1-2 hours before and after taking this drug"
+  },
+  "atorvastatin": {
+    "severity": "major",
+    "description": "Grapefruit increases drug levels leading to toxicity",
+    "recommendation": "Avoid grapefruit or grapefruit juice"
+  },
+  "warfarin": {
+    "severity": "moderate",
+    "description": "Vitamin K-rich foods reduce effectiveness",
+    "recommendation": "Maintain consistent intake of green leafy vegetables"
+  },
+  "metronidazole": {
+    "severity": "major",
+    "description": "Alcohol causes severe nausea and vomiting",
+    "recommendation": "Avoid alcohol during and 48 hours after treatment"
+  }
+}
