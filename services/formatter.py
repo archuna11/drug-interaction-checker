@@ -18,28 +18,41 @@ def clean_uses(text):
     # keep only first 2 for readability
     return ", ".join(parts[:2]) if parts else "General therapeutic use"
 
-
 def clean_side_effects(side):
     if not side:
         return "Minimal"
 
-    # ensure list
-    if isinstance(side, str):
-        side = side.split()
+    return side  # ✅ no split, no join, no commas added
 
-    # clean + limit
-    cleaned = [s.strip() for s in side if s.strip()]
 
-    return ", ".join(cleaned[:4]) if cleaned else "Minimal"
+
+# def clean_side_effects(side):
+#     if not side:
+#         return "Minimal"
+
+#     # ensure list
+#     if isinstance(side, str):
+#         side = side.split()
+
+#     # clean + limit
+#     cleaned = [s.strip() for s in side if s.strip()]
+
+#     return ", ".join(cleaned[:4]) if cleaned else "Minimal"
+
 
 
 def format_drug(d):
 
     name = d.get("drug_name", "Unknown")
 
-    uses = clean_uses(d.get("uses", ""))
+    uses = d.get("uses", "General therapeutic use")
     dosage = d.get("dosage", "") or "Standard dose"
-    side = clean_side_effects(d.get("side_effects", []))
+
+    side = d.get("side_effects", "Minimal")
+
+    # 🔥 FIX: join WITHOUT commas
+    if isinstance(side, list):
+        side = " ".join(side)   # ✅ SPACE instead of comma
 
     return {
         "drug_name": name,
@@ -47,3 +60,18 @@ def format_drug(d):
         "dosage": dosage,
         "side_effects": side
     }
+
+# def format_drug(d):
+
+#     name = d.get("drug_name", "Unknown")
+
+#     uses = clean_uses(d.get("uses", ""))
+#     dosage = d.get("dosage", "") or "Standard dose"
+#     side = clean_side_effects(d.get("side_effects", []))
+
+#     return {
+#         "drug_name": name,
+#         "summary": f"Used for {uses}",
+#         "dosage": dosage,
+#         "side_effects": side
+#     }

@@ -10,7 +10,6 @@ body {
     margin: 0;
 }
 
-/* HEADER */
 .header {
     text-align: center;
     font-size: 28px;
@@ -18,7 +17,6 @@ body {
     font-weight: bold;
 }
 
-/* SECTION */
 .section {
     width: 85%;
     margin: 20px auto;
@@ -27,7 +25,6 @@ body {
     border-radius: 18px;
 }
 
-/* INPUT */
 .input-box {
     display: flex;
     margin-top: 15px;
@@ -46,7 +43,6 @@ body {
     border-radius: 10px;
 }
 
-/* CHIPS */
 .chips {
     margin-top: 10px;
 }
@@ -66,7 +62,6 @@ body {
     cursor: pointer;
 }
 
-/* ANALYZE */
 .analyze-btn {
     display: block;
     margin: 20px auto;
@@ -77,7 +72,6 @@ body {
     border-radius: 10px;
 }
 
-/* DRUG GRID */
 .drug-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -92,7 +86,6 @@ body {
     line-height: 1.6;
 }
 
-/* TABS */
 .tabs {
     display: flex;
     gap: 10px;
@@ -112,7 +105,6 @@ body {
     background: #f4c7c7;
 }
 
-/* INTERACTIONS */
 .interaction {
     padding: 12px;
     border-radius: 10px;
@@ -133,7 +125,6 @@ h4 {
 
 <div class="header">💊 Drug Interaction Checker</div>
 
-<!-- INPUT -->
 <div class="section">
     <h3>Add Drugs</h3>
 
@@ -158,21 +149,18 @@ h4 {
     <button class="analyze-btn" onclick="analyze()">Analyze</button>
 </div>
 
-<!-- DRUG INFO -->
 <div class="section" id="drugSection" style="display:none;">
     <h3>Drug Information</h3>
     <div id="drugCards" class="drug-grid"></div>
 </div>
 
-<!-- INTERACTIONS -->
 <div class="section" id="interactionSection" style="display:none;">
 
     <div style="display:flex; justify-content:space-between; align-items:center;">
         <h3>Interaction Results</h3>
-
         <select id="modeSelect" onchange="changeMode()">
-            <option value="doctor">👨‍⚕️ Doctor View</option>
-            <option value="patient">👤 Patient View</option>
+            <option value="doctor">👨‍⚕️ Doctor</option>
+            <option value="patient">👤 Patient</option>
         </select>
     </div>
 
@@ -192,7 +180,6 @@ h4 {
 let selectedDrugs = [];
 let viewMode = "doctor";
 
-/* ADD DRUG */
 function addDrug(){
     let input = document.getElementById("drugInput").value.trim().toLowerCase();
     if(!input) return;
@@ -207,20 +194,17 @@ function addDrug(){
     renderChips();
 }
 
-/* ENTER KEY */
 document.getElementById("drugInput").addEventListener("keypress", function(e){
     if(e.key === "Enter"){
         addDrug();
     }
 });
 
-/* REMOVE */
 function removeDrug(i){
     selectedDrugs.splice(i,1);
     renderChips();
 }
 
-/* RENDER CHIPS */
 function renderChips(){
     let c = document.getElementById("chips");
     c.innerHTML = "";
@@ -234,17 +218,14 @@ function renderChips(){
     });
 }
 
-/* MODE */
 function changeMode(){
     viewMode = document.getElementById("modeSelect").value;
 
-    // ✅ ONLY UPDATE UI (NO API CALL)
     renderInteractions(window.lastDDI || [], "ddi");
     renderInteractions(window.lastFood || [], "food");
     renderInteractions(window.lastDisease || [], "disease");
 }
 
-/* ANALYZE */
 function analyze(){
 
     if(selectedDrugs.length === 0){
@@ -252,7 +233,15 @@ function analyze(){
         return;
     }
 
+    // ✅ SHOW UI IMMEDIATELY
+    document.getElementById("drugSection").style.display = "block";
+    document.getElementById("interactionSection").style.display = "block";
+
+    // ✅ LOADING STATE
     document.getElementById("drugCards").innerHTML = "⏳ Loading...";
+    document.getElementById("ddi").innerHTML = "⏳ Checking interactions...";
+    document.getElementById("food").innerHTML = "";
+    document.getElementById("disease").innerHTML = "";
 
     fetch("/analyze", {
         method:"POST",
@@ -261,19 +250,15 @@ function analyze(){
     })
     .then(res=>res.json())
     .then(data=>{
-        // ✅ ADD THIS (IMPORTANT)
+
         window.lastDDI = data.interactions || [];
         window.lastFood = data.food_interactions || [];
         window.lastDisease = data.disease_interactions || [];
 
-        // ✅ SHOW RESULTS
-        document.getElementById("drugSection").style.display = "block";
-        document.getElementById("interactionSection").style.display = "block";
-
         renderDrugs(data.drugs || []);
-        renderInteractions(data.interactions || [], "ddi");
-        renderInteractions(data.food_interactions || [], "food");
-        renderInteractions(data.disease_interactions || [], "disease");
+        renderInteractions(window.lastDDI, "ddi");
+        renderInteractions(window.lastFood, "food");
+        renderInteractions(window.lastDisease, "disease");
 
     })
     .catch(err=>{
@@ -282,7 +267,6 @@ function analyze(){
     });
 }
 
-/* UPLOAD */
 function uploadFile(){
 
     let file = document.getElementById("fileInput").files[0];
@@ -304,7 +288,6 @@ function uploadFile(){
     .then(res => res.json())
     .then(data => {
 
-        // ✅ SHOW RESULTS
         document.getElementById("drugSection").style.display = "block";
         document.getElementById("interactionSection").style.display = "block";
 
@@ -314,13 +297,9 @@ function uploadFile(){
         }
 
         if(data.analysis){
-            // ✅ ADD THIS HERE
             window.lastDDI = data.analysis.interactions || [];
             window.lastFood = data.analysis.food_interactions || [];
             window.lastDisease = data.analysis.disease_interactions || [];
-
-
-
 
             renderDrugs(data.analysis.drugs || []);
             renderInteractions(data.analysis.interactions || [], "ddi");
@@ -335,7 +314,6 @@ function uploadFile(){
     });
 }
 
-/* DRUG CARDS */
 function renderDrugs(drugs){
     let c = document.getElementById("drugCards");
     c.innerHTML = "";
@@ -351,8 +329,39 @@ function renderDrugs(drugs){
     });
 }
 
-/* INTERACTIONS */
+function toPatientView(i){
+
+    let sev = (i.severity || "minor").toLowerCase();
+
+    let description = "";
+    let recommendation = "";
+
+    if(sev === "major" || sev === "severe"){
+        description = "🚨 These medicines can interact in a serious way and may harm you.";
+        recommendation = "⚠️ Do NOT take them together without medical advice. Please contact your doctor immediately.";
+    }
+    else if(sev === "moderate"){
+        description = "⚠️ These medicines may interact and cause unwanted side effects.";
+        recommendation = "👉 Use with caution. Talk to your doctor if you notice anything unusual.";
+    }
+    else{
+        description = "🟢 These medicines are generally safe to take together.";
+        recommendation = "✅ Continue as prescribed, but stay alert for any unusual symptoms.";
+    }
+
+    return {
+        ...i,
+        description,
+        recommendation
+    };
+}
+
 function renderInteractions(list, id){
+
+    // ✅ Patient mode ONLY for Drug-Drug
+    if(viewMode === "patient" && id === "ddi"){
+        list = list.map(toPatientView);
+    }
 
     let c = document.getElementById(id);
     c.innerHTML = "";
@@ -362,12 +371,14 @@ function renderInteractions(list, id){
         return;
     }
 
-    let critical=[], moderate=[], minor=[];
+    // ✅ GROUPING LOGIC
+    let critical = [], moderate = [], minor = [];
 
     list.forEach(i=>{
         let sev = (i.severity || "minor").toLowerCase();
-        if(sev==="major"||sev==="severe") critical.push(i);
-        else if(sev==="moderate") moderate.push(i);
+
+        if(sev === "major" || sev === "severe") critical.push(i);
+        else if(sev === "moderate") moderate.push(i);
         else minor.push(i);
     });
 
@@ -379,7 +390,12 @@ function renderInteractions(list, id){
             ? `${i.drug} + Food`
             : `${i.drug} + ${i.condition}`;
 
-        return `<div class="interaction ${i.severity}">
+        // ✅ FIX CSS mismatch (major → severe)
+        let sevClass = (i.severity || "minor").toLowerCase();
+        if(sevClass === "major") sevClass = "severe";
+
+        return `
+        <div class="interaction ${sevClass}">
             <b>${name}</b><br>
             <b>Severity:</b> ${i.severity}<br>
             ${i.description}<br>
@@ -388,112 +404,26 @@ function renderInteractions(list, id){
     }
 
     function section(title, items){
-        if(items.length===0) return "";
+        if(items.length === 0) return "";
         return `<h4>${title}</h4>` + items.map(block).join("");
     }
 
+    // ✅ FINAL OUTPUT (GROUPED)
     c.innerHTML += section("🚨 Critical Alerts", critical);
     c.innerHTML += section("⚠️ Moderate Warnings", moderate);
     c.innerHTML += section("🟢 Minor / Safe", minor);
 }
 
-/* TAB SWITCH (FIX ADDED) */
 function showTab(id, el){
-
-    // hide all
     document.getElementById("ddi").style.display = "none";
     document.getElementById("food").style.display = "none";
     document.getElementById("disease").style.display = "none";
 
-    // show selected
     document.getElementById(id).style.display = "block";
 
-    // remove active from all tabs
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-
-    // add active to clicked tab
     el.classList.add("active");
 }
-
-/* ========================= */
-/* 🔥 ADDITIONS START HERE   */
-/* ========================= */
-
-/* 1. SHOW UI IMMEDIATELY (WRAPPER) */
-const originalAnalyze = analyze;
-
-analyze = function(){
-
-    if(selectedDrugs.length === 0){
-        alert("Add at least one drug");
-        return;
-    }
-
-    // ✅ SHOW IMMEDIATELY
-    document.getElementById("drugSection").style.display = "block";
-    document.getElementById("interactionSection").style.display = "block";
-
-    // loading state
-    document.getElementById("drugCards").innerHTML = "⏳ Loading...";
-
-    originalAnalyze();
-};
-
-
-/* 2. SAME FOR UPLOAD */
-const originalUpload = uploadFile;
-
-uploadFile = function(){
-
-    let file = document.getElementById("fileInput").files[0];
-
-    if(!file){
-        alert("Please select a file");
-        return;
-    }
-
-    // ✅ SHOW IMMEDIATELY
-    document.getElementById("drugSection").style.display = "block";
-    document.getElementById("interactionSection").style.display = "block";
-
-    originalUpload();
-};
-
-
-/* 3. FORCE TAB STATE AFTER RENDER */
-function forceTabFix(){
-
-    // show only ddi by default
-    document.getElementById("ddi").style.display = "block";
-    document.getElementById("food").style.display = "none";
-    document.getElementById("disease").style.display = "none";
-
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    document.querySelector(".tab").classList.add("active");
-}
-
-
-/* 4. PATCH renderInteractions TO KEEP TABS WORKING */
-let tabInitialized = false;
-
-const originalRenderInteractions = renderInteractions;
-
-renderInteractions = function(list, id){
-
-    originalRenderInteractions(list, id);
-
-    // ✅ run only once (not every time)
-    if(!tabInitialized){
-        setTimeout(forceTabFix, 0);
-        tabInitialized = true;
-    }
-};
-
-
-
-/* ========================= */
-/* 🔥 ADDITIONS END HERE     */
-/* ========================= */
 
 </script>
 

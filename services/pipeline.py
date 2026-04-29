@@ -3,7 +3,6 @@ from services.formatter import format_drug
 from clinical_ddi_check import drug_interaction_check, normalize_medication_names
 from services.food_interaction import get_food_interactions
 from services.disease_interaction import get_disease_interactions
-from services.ai_summary import generate_ai_summary
 
 
 def run_pipeline(input_drugs, conditions=None):
@@ -110,16 +109,7 @@ def run_pipeline(input_drugs, conditions=None):
 
     disease = get_disease_interactions(clean_generics, conditions)
 
-    # -----------------------------
-    # 🧠 AI SUMMARY
-    # -----------------------------
-    try:
-        doctor_summary = generate_ai_summary(drug_cards, interactions, "doctor")
-        patient_summary = generate_ai_summary(drug_cards, interactions, "patient")
-    except Exception as e:
-        print("❌ AI Summary failed:", e)
-        doctor_summary = "Summary not available"
-        patient_summary = "Summary not available"
+    
 
     # -----------------------------
     # FINAL RESPONSE
@@ -129,8 +119,4 @@ def run_pipeline(input_drugs, conditions=None):
         "interactions": interactions,
         "food_interactions": food,
         "disease_interactions": disease,
-        "summary": {
-            "doctor": doctor_summary,
-            "patient": patient_summary
-        }
     }
