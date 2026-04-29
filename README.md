@@ -49,7 +49,8 @@ An AI-assisted clinical decision support tool that analyzes:
 
 ## 📸 UI Preview
 
-(Add screenshots here)
+<img width="1913" height="857" alt="image" src="https://github.com/user-attachments/assets/45d6ab54-6cea-49bd-ad94-f90e923d1730" />
+
 
 ---
 
