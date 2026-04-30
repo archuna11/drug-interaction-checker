@@ -1,29 +1,29 @@
 import re
 from config import get_db_connection
 
-# 🔥 Words to ignore (very important)
+# 🔥 Words to ignore
 STOPWORDS = {
     "take", "after", "before", "food", "name", "patient",
     "advice", "daily", "morning", "night", "bd", "tid",
-    "rx", "tab", "cap"
+    "rx", "tab", "cap", "male", "female", "type", "once",
+    "pain", "salt", "year", "old"
 }
 
 
 def clean_word(word):
     word = word.strip().lower()
-    word = re.sub(r"[^a-z]", "", word)  # keep only letters
+    word = re.sub(r"[^a-z]", "", word)
     return word
 
 
+# ✅ STRICT MATCH (NO LIKE %word%)
 def is_valid_drug(word, cursor):
-
-    # 🔥 check in DB (generic or brand)
     cursor.execute("""
         SELECT 1 FROM drugs_1mg
-        WHERE LOWER(drug_name) LIKE ?
-        OR LOWER(generic_name) LIKE ?
+        WHERE LOWER(drug_name) = ?
+        OR LOWER(generic_name) = ?
         LIMIT 1
-    """, (f"%{word}%", f"%{word}%"))
+    """, (word, word))
 
     return cursor.fetchone() is not None
 
@@ -34,8 +34,7 @@ def extract_drugs_from_text(text):
     cursor = conn.cursor()
 
     words = text.split()
-
-    drugs = []
+    drugs = set()  # 🔥 no duplicates automatically
 
     for w in words:
 
@@ -47,15 +46,14 @@ def extract_drugs_from_text(text):
         if w in STOPWORDS:
             continue
 
-        # 🔥 ONLY KEEP VALID DRUGS
+        # 🔥 ONLY STRICT VALID DRUGS
         if is_valid_drug(w, cursor):
-            drugs.append(w)
+            drugs.add(w)
 
     conn.close()
 
-    # remove duplicates
-    drugs = list(set(drugs))
+    drugs = list(drugs)
 
-    print("🧪 FILTERED DRUGS:", drugs)
+    print("🧪 FINAL DRUGS:", drugs)
 
     return drugs

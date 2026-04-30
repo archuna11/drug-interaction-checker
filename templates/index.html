@@ -266,7 +266,6 @@ function analyze(){
         alert("Error occurred");
     });
 }
-
 function uploadFile(){
 
     let file = document.getElementById("fileInput").files[0];
@@ -279,7 +278,15 @@ function uploadFile(){
     let formData = new FormData();
     formData.append("file", file);
 
-    document.getElementById("drugCards").innerHTML = "⏳ Extracting drugs...";
+    // ✅ SHOW UI IMMEDIATELY (same as analyze)
+    document.getElementById("drugSection").style.display = "block";
+    document.getElementById("interactionSection").style.display = "block";
+
+    // ✅ LOADING STATE (VERY IMPORTANT)
+    document.getElementById("drugCards").innerHTML = "⏳ Extracting drugs from prescription...";
+    document.getElementById("ddi").innerHTML = "⏳ Checking drug interactions...";
+    document.getElementById("food").innerHTML = "";
+    document.getElementById("disease").innerHTML = "";
 
     fetch("/upload", {
         method: "POST",
@@ -288,23 +295,22 @@ function uploadFile(){
     .then(res => res.json())
     .then(data => {
 
-        document.getElementById("drugSection").style.display = "block";
-        document.getElementById("interactionSection").style.display = "block";
-
+        // 🔥 Populate detected drugs
         if(data.detected_drugs){
             selectedDrugs = data.detected_drugs;
             renderChips();
         }
 
+        // 🔥 Render results
         if(data.analysis){
             window.lastDDI = data.analysis.interactions || [];
             window.lastFood = data.analysis.food_interactions || [];
             window.lastDisease = data.analysis.disease_interactions || [];
 
             renderDrugs(data.analysis.drugs || []);
-            renderInteractions(data.analysis.interactions || [], "ddi");
-            renderInteractions(data.analysis.food_interactions || [], "food");
-            renderInteractions(data.analysis.disease_interactions || [], "disease");
+            renderInteractions(window.lastDDI, "ddi");
+            renderInteractions(window.lastFood, "food");
+            renderInteractions(window.lastDisease, "disease");
         }
 
     })
